@@ -18,7 +18,7 @@ class Route
      */
     private $parameters;
 
-    public function __construct($name, callable $callback, array $parameters)
+    public function __construct($name, $callback, array $parameters)
     {
 
         $this->name = $name;

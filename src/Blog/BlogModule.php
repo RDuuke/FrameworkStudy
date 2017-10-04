@@ -1,33 +1,19 @@
 <?php
 namespace App\Blog;
 
+use App\Blog\Actions\BlogAction;
+use Framework\Module;
 use Framework\Renderer;
 use Framework\Router;
-use Psr\Http\Message\ServerRequestInterface;
 
-class BlogModule
+class BlogModule extends Module
 {
-    private $renderer;
+    const DEFINITIONS = __DIR__ . DS . 'config.php';
 
-    public function __construct(Router $route, Renderer\RendererInterface $renderer)
+    public function __construct($prefix, Router $route, Renderer\RendererInterface $renderer)
     {
-        $this->renderer = $renderer;
-        $this->renderer->addPath('home', __DIR__ . '/views');
-
-        $route->get('/home', [$this, 'index'], 'blog.index');
-        $route->get('/home/{slug:[a-z\-0-9]+}', [$this, 'show'], 'blog.show');
-    }
-
-    public function index(ServerRequestInterface $request)
-    {
-        return $this->renderer->render('@home/index');
-    }
-
-    public function show(ServerRequestInterface $request)
-    {
-            return $this->renderer->render(
-                '@home/show',
-                ['slug' => $request->getAttribute('slug')]
-            );
+        $renderer->addPath('home', __DIR__ . '/views');
+        $route->get($prefix, BlogAction::class, 'blog.index');
+        $route->get($prefix .'/{slug:[a-z\-0-9]+}', BlogAction::class, 'blog.show');
     }
 }

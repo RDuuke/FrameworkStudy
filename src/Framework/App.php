@@ -2,6 +2,7 @@
 namespace Framework;
 
 use GuzzleHttp\Psr7\Response;
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -17,18 +18,18 @@ class App
      * @var Router
      */
     private $router;
+
+    private $container;
+
     /**
      * App constructor.
      * @param string[] $modules List of modules to load
      */
-    public function __construct(array $modules = [], array $dependency = [])
+    public function __construct(ContainerInterface $container, array $modules)
     {
-        $this->router = new Router();
-        if (array_key_exists('renderer', $dependency)) {
-            $dependency['renderer']->addGlobal('router', $this->router);
-        }
+        $this->container = $container;
         foreach ($modules as $module) {
-            $this->modules[] = new $module($this->router, $dependency['renderer']);
+            $this->modules[] = $container->get($module);
         }
     }
 
@@ -41,7 +42,8 @@ class App
                         ->withHeader('Location', substr($uri, 0, -1));
             return $response;
         }
-        $route = $this->router->match($request);
+        $router = $this->container->get(Router::class);
+        $route = $router->match($request);
 
         if (is_null($route)) {
             return new Response(404, [], "<h1>Error 404</h1>");
@@ -50,8 +52,11 @@ class App
         $request = array_reduce(array_keys($params), function ($request, $key) use ($params) {
             return $request->withAttribute($key, $params[$key]);
         }, $request);
-
-        $response = call_user_func_array($route->getCallback(), [$request]);
+        $callback = $route->getCallback();
+        if (is_string($callback)) {
+            $callback = $this->container->get($callback);
+        }
+        $response = call_user_func_array($callback, [$request]);
         if (is_string($response)) {
             return new Response(200, [], $response);
         } elseif ($response instanceof ResponseInterface) {
