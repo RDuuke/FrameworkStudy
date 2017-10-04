@@ -7,9 +7,9 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class BlogModule
 {
-    private  $renderer;
+    private $renderer;
 
-    public function __construct(Router $route, Renderer $renderer)
+    public function __construct(Router $route, Renderer\RendererInterface $renderer)
     {
         $this->renderer = $renderer;
         $this->renderer->addPath('home', __DIR__ . '/views');
@@ -25,7 +25,9 @@ class BlogModule
 
     public function show(ServerRequestInterface $request)
     {
-            return $this->renderer->render('@home/show',
-                ['slug' => $request->getAttribute('slug')]);
+            return $this->renderer->render(
+                '@home/show',
+                ['slug' => $request->getAttribute('slug')]
+            );
     }
 }

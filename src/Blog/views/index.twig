@@ -1,0 +1,8 @@
+{% extends 'layout.twig' %}
+{% block title "Mis articles" %}
+{% block body %}
+    <h1>Welcome the Blog!</h1>
+
+    <p><a href="{{ router.generateUri('blog.show', {'slug' : 'article-of'}) }}">Article</a></p>
+{% endblock %}
+

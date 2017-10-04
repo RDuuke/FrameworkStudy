@@ -1,9 +1,8 @@
 <?php
 
-namespace Framework;
+namespace Framework\Renderer;
 
-
-class Renderer
+class PHPRenderer implements RendererInterface
 {
     const DEFAULT_NAMESPACE = '__MAIN';
 
@@ -11,8 +10,11 @@ class Renderer
 
     private $globals = [];
 
-    public function __construct()
+    public function __construct($defaultPath = null)
     {
+        if (! is_null($defaultPath)) {
+            $this->addPath($defaultPath);
+        }
     }
 
     public function addPath($namespace, $path = null)
@@ -26,7 +28,7 @@ class Renderer
 
     public function render($view, array $params = [])
     {
-        if($this->hasNamespace($view)) {
+        if ($this->hasNamespace($view)) {
             $path = $this->replaceNamespace($view) . '.php';
         } else {
             $path = $this->paths[self::DEFAULT_NAMESPACE] . DIRECTORY_SEPARATOR . $view . '.php';
@@ -51,7 +53,7 @@ class Renderer
 
     private function getNamespace($view)
     {
-        return substr($view, 1,strpos($view, '/') - 1);
+        return substr($view, 1, strpos($view, '/') - 1);
     }
 
     private function replaceNamespace($view)
