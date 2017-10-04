@@ -1,24 +1,31 @@
 <?php
 namespace App\Blog;
 
+use Framework\Renderer;
 use Framework\Router;
 use Psr\Http\Message\ServerRequestInterface;
 
 class BlogModule
 {
-    public function __construct(Router $route)
+    private  $renderer;
+
+    public function __construct(Router $route, Renderer $renderer)
     {
+        $this->renderer = $renderer;
+        $this->renderer->addPath('home', __DIR__ . '/views');
+
         $route->get('/home', [$this, 'index'], 'blog.index');
-        $route->get('/home/{slug:[a-z\-]+}', [$this, 'show'], 'blog.show');
+        $route->get('/home/{slug:[a-z\-0-9]+}', [$this, 'show'], 'blog.show');
     }
 
     public function index(ServerRequestInterface $request)
     {
-        return '<h1>Welcome to home</h1>';
+        return $this->renderer->render('@home/index');
     }
 
     public function show(ServerRequestInterface $request)
     {
-            return '<h1>Welcome to article '.$request->getAttribute('slug').'</h1>';
+            return $this->renderer->render('@home/show',
+                ['slug' => $request->getAttribute('slug')]);
     }
 }
