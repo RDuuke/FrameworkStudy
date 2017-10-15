@@ -1,5 +1,5 @@
 <?php
-require "../vendor/autoload.php";
+require dirname(__DIR__)."/vendor/autoload.php";
 use App\Blog\BlogModule;
 use DI\ContainerBuilder;
 use Framework\App;
@@ -26,5 +26,8 @@ $app = new App(
     $container,
     $modules
     );
-$response = $app->run(\GuzzleHttp\Psr7\ServerRequest::fromGlobals());
-\Http\Response\send($response);
+if (php_sapi_name() != 'cli') {
+    $response = $app->run(\GuzzleHttp\Psr7\ServerRequest::fromGlobals());
+    \Http\Response\send($response);
+}
+

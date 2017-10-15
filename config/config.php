@@ -7,6 +7,10 @@ use Framework\Router\RouterTwigExtension;
 use Psr\Container\ContainerInterface;
 
 return [
+    'database.host' => 'localhost',
+    'database.username' => 'root',
+    'database.password' => '',
+    'database.name' => 'framework',
     'views.path' => dirname(__DIR__) . DIRECTORY_SEPARATOR . 'views',
     'twig.extensions' => [
         \DI\get(RouterTwigExtension::class)
