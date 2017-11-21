@@ -16,6 +16,6 @@ class BlogModule extends Module
     {
         $renderer->addPath('home', __DIR__ . '/views');
         $route->get($prefix, BlogAction::class, 'blog.index');
-        $route->get($prefix .'/{slug:[a-z\-0-9]+}', BlogAction::class, 'blog.show');
+        $route->get($prefix .'/{slug:[a-z\-0-9]+}-{id:[0-9]+}', BlogAction::class, 'blog.show');
     }
 }

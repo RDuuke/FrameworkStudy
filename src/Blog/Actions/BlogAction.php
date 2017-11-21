@@ -1,7 +1,11 @@
 <?php
 namespace App\Blog\Actions;
 
+use App\Blog\Table\PostTable;
+use Framework\Actions\RouterAwareAction;
 use Framework\Renderer\RendererInterface;
+use Framework\Router;
+use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\ServerRequestInterface;
 
 class BlogAction
@@ -11,31 +15,56 @@ class BlogAction
      */
     private $renderer;
 
-    public function __construct(RendererInterface $renderer)
+    /**
+     * @var Router
+     */
+    private $router;
+    /**
+     * @var PostTable
+     */
+    private $postTable;
+
+    use RouterAwareAction;
+
+    public function __construct(RendererInterface $renderer, Router $router, PostTable $postTable)
     {
 
         $this->renderer = $renderer;
+        $this->router = $router;
+        $this->postTable = $postTable;
     }
 
     public function __invoke(ServerRequestInterface $request)
     {
-        $slug = $request->getAttribute('slug');
-        if ($slug) {
-            return $this->show($slug);
+        if ($request->getAttribute('id')) {
+            return $this->show($request);
         }
         return $this->index();
     }
 
     public function index()
     {
-        return $this->renderer->render('@home/index');
+        $posts = $this->postTable->findPaginated();
+        return $this->renderer->render('@home/index', compact('posts'));
     }
 
-    public function show($slug)
+    /**
+     * @param ServerRequestInterface $request
+     * @return \GuzzleHttp\Psr7\MessageTrait|static
+     */
+    public function show(ServerRequestInterface $request)
     {
+        $slug = $request->getAttribute('slug');
+        $post = $this->postTable->find($request->getAttribute('id'));
+        if ($post->slug !== $slug) {
+            return $this->redirect('blog.show', [
+                'slug' => $post->slug,
+                'id' => $post->id
+            ]);
+        }
         return $this->renderer->render(
             '@home/show',
-            ['slug' => $slug]
+            ['post' => $post]
         );
     }
 }

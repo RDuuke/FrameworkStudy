@@ -43,9 +43,6 @@ class RouterTest extends TestCase
         $route = $this->router->match($request);
         $this->assertEquals('post.show', $route->getName());
         $this->assertEquals(['slug' => 'my-slug', 'id' => '8'], $route->getParams());
-
-        // Test invalid url
-
         $route = $this->router->match(new ServerRequest('GET', '/home/my_article-8'));
         $this->assertEquals(null, $route);
     }
